@@ -271,6 +271,52 @@ def generate_product_html(p, all_prods):
             85% {{ opacity: 1; }}
             100% {{ left: 170%; opacity: 0; }}
         }}
+
+        /* RIGHT-CENTER FLOATING CONTACT DOCK & SOCIAL ANIMATION */
+        @keyframes phone-ring {{
+            0%, 100% {{ transform: rotate(0deg) scale(1); }}
+            10%, 30% {{ transform: rotate(-16deg) scale(1.08); }}
+            20%, 40% {{ transform: rotate(16deg) scale(1.08); }}
+            50% {{ transform: rotate(0deg) scale(1); }}
+        }}
+        @keyframes zalo-heartbeat {{
+            0%, 100% {{ transform: scale(1); }}
+            15% {{ transform: scale(1.12); }}
+            30% {{ transform: scale(1); }}
+            45% {{ transform: scale(1.08); }}
+            60% {{ transform: scale(1); }}
+        }}
+        @keyframes mess-bounce {{
+            0%, 100% {{ transform: translateY(0) scale(1); }}
+            20% {{ transform: translateY(-6px) scale(1.06); }}
+            40% {{ transform: translateY(2px) scale(0.98); }}
+            60% {{ transform: translateY(-3px) scale(1.02); }}
+            80% {{ transform: translateY(0) scale(1); }}
+        }}
+        @keyframes pulse-wave-emerald {{
+            0% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.75); }}
+            70% {{ transform: scale(1); box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }}
+            100% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }}
+        }}
+        @keyframes pulse-wave-blue {{
+            0% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.75); }}
+            70% {{ transform: scale(1); box-shadow: 0 0 0 14px rgba(37, 99, 235, 0); }}
+            100% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }}
+        }}
+        @keyframes pulse-wave-purple {{
+            0% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.75); }}
+            70% {{ transform: scale(1); box-shadow: 0 0 0 14px rgba(168, 85, 247, 0); }}
+            100% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }}
+        }}
+        .anim-phone-ring {{
+            animation: phone-ring 2.8s ease-in-out infinite, pulse-wave-emerald 2.2s infinite;
+        }}
+        .anim-zalo-beat {{
+            animation: zalo-heartbeat 2.6s ease-in-out infinite, pulse-wave-blue 2.2s infinite 0.6s;
+        }}
+        .anim-mess-bounce {{
+            animation: mess-bounce 3s ease-in-out infinite, pulse-wave-purple 2.2s infinite 1.2s;
+        }}
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
@@ -505,6 +551,56 @@ def generate_product_html(p, all_prods):
             <p>© 2026 Livo Deco Official. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- STICKY FLOATING CONTACT DOCK (Hotline, Zalo, Messenger, Scroll-to-Top) -->
+    <div class="fixed right-3 md:right-5 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-3">
+        <!-- Hotline -->
+        <a href="tel:0903354397" aria-label="Hotline Tư Vấn" class="w-12 h-12 md:w-13 md:h-13 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all duration-300 hover:scale-115 group relative anim-phone-ring">
+            <i class="fa-solid fa-phone text-lg"></i>
+            <span class="absolute right-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-slate-900/95 backdrop-blur text-white text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none border border-slate-700/60 flex items-center gap-1.5">
+                <i class="fa-solid fa-phone-volume text-emerald-400"></i> Hotline: 0903 354 397
+            </span>
+        </a>
+
+        <!-- Zalo -->
+        <a href="https://zalo.me/0903354397" target="_blank" rel="noopener noreferrer" aria-label="Chat Zalo" class="w-12 h-12 md:w-13 md:h-13 rounded-full bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all duration-300 hover:scale-115 group relative anim-zalo-beat">
+            <span class="font-black text-xs tracking-tight">ZALO</span>
+            <span class="absolute right-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-slate-900/95 backdrop-blur text-white text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none border border-slate-700/60 flex items-center gap-1.5">
+                <i class="fa-solid fa-comment-dots text-blue-400"></i> Chat Zalo Tư Vấn
+            </span>
+        </a>
+
+        <!-- Messenger -->
+        <a href="https://m.me/livodeco" target="_blank" rel="noopener noreferrer" aria-label="Chat Messenger Facebook" class="w-12 h-12 md:w-13 md:h-13 rounded-full bg-gradient-to-tr from-[#00c6ff] via-[#0078ff] to-[#a033ff] text-white shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all duration-300 hover:scale-115 group relative anim-mess-bounce">
+            <i class="fa-brands fa-facebook-messenger text-xl"></i>
+            <span class="absolute right-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-slate-900/95 backdrop-blur text-white text-xs font-semibold px-3 py-1.5 rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none border border-slate-700/60 flex items-center gap-1.5">
+                <i class="fa-brands fa-facebook-messenger text-[#00c6ff]"></i> Facebook Messenger
+            </span>
+        </a>
+
+        <!-- Scroll To Top Button -->
+        <button id="scrollToTopBtn" onclick="window.scrollTo({{top: 0, behavior: 'smooth'}})" aria-label="Cuộn lên đầu trang" class="w-11 h-11 md:w-12 md:h-12 rounded-full bg-slate-900/90 hover:bg-blue-600 text-white shadow-lg shadow-slate-900/20 flex items-center justify-center transition-all duration-300 hover:scale-110 opacity-0 pointer-events-none translate-x-3 group relative border border-white/20 mt-1 cursor-pointer">
+            <i class="fa-solid fa-arrow-up text-sm"></i>
+            <span class="absolute right-[calc(100%+12px)] top-1/2 -translate-y-1/2 bg-slate-900/95 backdrop-blur text-white text-xs font-semibold px-2.5 py-1.5 rounded-xl shadow-xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none border border-slate-700/60">
+                Lên đầu trang
+            </span>
+        </button>
+    </div>
+
+    <script>
+        const scrollTopBtn = document.getElementById('scrollToTopBtn');
+        if (scrollTopBtn) {{
+            window.addEventListener('scroll', () => {{
+                if (window.scrollY > 280) {{
+                    scrollTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-x-3');
+                    scrollTopBtn.classList.add('opacity-100', 'translate-x-0');
+                }} else {{
+                    scrollTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-x-3');
+                    scrollTopBtn.classList.remove('opacity-100', 'translate-x-0');
+                }}
+            }}, {{ passive: true }});
+        }}
+    </script>
 </body>
 </html>"""
 
