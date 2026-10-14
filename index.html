@@ -1860,8 +1860,11 @@
             const keyword = searchEl ? searchEl.value.toLowerCase().trim() : '';
 
             let filtered = allProducts.filter(item => {
-                if (currentTab !== 'all' && item.category !== currentTab) return false;
-                if (currentSubFilter !== 'all' && item.subCategory !== currentSubFilter) return false;
+                if (currentSubFilter !== 'all') {
+                    if (item.subCategory !== currentSubFilter) return false;
+                } else if (currentTab !== 'all') {
+                    if (item.category !== currentTab) return false;
+                }
                 if (keyword && !item.name.toLowerCase().includes(keyword)) return false;
                 return true;
             });
@@ -2217,9 +2220,14 @@
                 }
             });
 
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            const allBtn = document.querySelector('.filter-btn');
-            if (allBtn) allBtn.classList.add('active');
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick') || '';
+                if (onclickAttr.includes("'all'")) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
 
             renderProducts();
         }
@@ -2235,13 +2243,38 @@
             currentSubFilter = subCat;
             displayedCount = 16;
 
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            if (window.event && window.event.target && window.event.target.classList.contains('filter-btn')) {
-                window.event.target.classList.add('active');
+            // Sync category tab with subcategory
+            if (subCat !== 'all') {
+                const sample = allProducts.find(p => p.subCategory === subCat);
+                if (sample) {
+                    currentTab = sample.category;
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        if (btn.getAttribute('data-cat') === sample.category) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+            } else {
+                currentTab = 'all';
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    if (btn.getAttribute('data-cat') === 'all') {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
             }
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick') || '';
+                if (onclickAttr.includes(`'${subCat}'`)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
 
             renderProducts();
             scrollToSection('products-section');

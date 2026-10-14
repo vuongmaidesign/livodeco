@@ -676,3 +676,9 @@ with open("sitemap.xml", "w", encoding="utf-8") as f:
 
 print(f"Updated sitemap.xml with {len(sitemap_urls)} URLs (all ADEL, YALE, and catalogue pages).")
 
+# Synchronize data.js
+with open("data.js", "w", encoding="utf-8") as f:
+    f.write("window.LIVODECO_DATA = " + json.dumps(data, ensure_ascii=False, indent=2) + ";\nwindow.VUONGTIN_DATA = window.LIVODECO_DATA;\n")
+
+print("Synchronized data.js with products_data.json!")
+
