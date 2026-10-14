@@ -30,10 +30,13 @@ def generate_product_html(p, all_prods):
             for img_src in infographics
         ])
     else:
-        right_box_title = "Hình Ảnh Chi Tiết Sản Phẩm"
+        right_box_title = "Hình Ảnh Chi Tiết Sản Phẩm Chính Hãng"
         infographic_imgs = f'<div class="flex-1 flex items-center justify-center py-6 w-full"><img src="../{p["image"]}" alt="{p["name"]}" class="max-h-[380px] w-auto object-contain mx-auto drop-shadow-md"></div>'
 
-    same_cats = [item for item in all_prods if item.get("subCategory") == p.get("subCategory") and item["id"] != p["id"]][:4]
+    brand = p.get("brand", "ADEL")
+    same_cats = [item for item in all_prods if item.get("brand") == brand and item["id"] != p["id"]][:4]
+    if len(same_cats) < 4:
+        same_cats = [item for item in all_prods if item.get("subCategory") == p.get("subCategory") and item["id"] != p["id"]][:4]
     if len(same_cats) < 4:
         same_cats = [item for item in all_prods if item.get("category") == p.get("category") and item["id"] != p["id"]][:4]
 
@@ -47,22 +50,22 @@ def generate_product_html(p, all_prods):
                 <img src="../{item['image']}" alt="{item['name']}" class="max-h-36 max-w-full object-contain group-hover:scale-105 transition duration-300">
             </div>
             <div>
-                <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{item.get('categoryName', 'Khóa ADEL')}</span>
+                <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{item.get('categoryName', item.get('brand', 'Khóa ADEL'))}</span>
                 <h4 class="text-xs font-bold text-slate-900 group-hover:text-blue-600 line-clamp-2 mt-1">{item['name']}</h4>
                 <div class="text-sm font-black text-blue-700 mt-2">{item['price']}</div>
             </div>
         </a>
     """ for item in same_cats])
 
-    eval_heading_name = p['name'] if p['name'].lower().startswith(('khóa', 'bồn', 'lavabo', 'sen', 'bộ', 'sofa', 'tủ')) else f"Khóa Điện Tử {p['name']}"
+    eval_heading_name = p['name'] if p['name'].lower().startswith(('khóa', 'bồn', 'lavabo', 'sen', 'bộ', 'sofa', 'tủ', 'cầu', 'module', 'tay')) else f"Khóa Điện Tử {p['name']}"
 
     # Extract key specs for natural prose
     unlock_methods = specs.get("Mở khóa ", specs.get("Mở khóa", specs.get("Phương thức mở khóa", "vân tay sinh trắc học, thẻ từ RFID, mật mã số và chìa cơ chống sao chép")))
-    door_thickness = specs.get("Độ dày cửa", specs.get("Độ dày đố cửa", "35mm ~ 75mm"))
-    material = specs.get("Vật liệu ", specs.get("Vật liệu", specs.get("Chất liệu", "hợp kim kẽm/nhôm đúc nguyên khối siêu bền")))
-    power_supply = specs.get("Nguồn điện", "4 viên pin kiềm AA 1.5V (tuổi thọ ~ 10.000 lần đóng mở)")
-    color = specs.get("Màu sắc ", specs.get("Màu sắc", "Đen nhám / Vàng kim / Bạc sang trọng"))
-    capacity = specs.get("Dung lượng", "200 vân tay, 200 thẻ từ và mật mã")
+    door_thickness = specs.get("Độ dày cửa", specs.get("Độ dày đố cửa", specs.get("Độ dày cửa phù hợp", "35mm ~ 80mm")))
+    material = specs.get("Vật liệu ", specs.get("Vật liệu", specs.get("Chất liệu", specs.get("Chất liệu chế tác", "hợp kim đúc nguyên khối chống va đập, chống cạy phá"))))
+    power_supply = specs.get("Nguồn điện", specs.get("Nguồn điện hoạt động", "4 viên pin kiềm AA 1.5V (tuổi thọ ~ 10.000 lần đóng mở)"))
+    color = specs.get("Màu sắc ", specs.get("Màu sắc", specs.get("Màu sắc hoàn thiện", "Đen nhám / Vàng kim / Bạc sang trọng")))
+    capacity = specs.get("Dung lượng", specs.get("Dung lượng bộ nhớ", "100 - 200 vân tay, thẻ từ và mật mã"))
 
     # FAQs HTML + Schema
     faqs = p.get("faqs", [])
@@ -90,7 +93,11 @@ def generate_product_html(p, all_prods):
             }
         })
 
-    # JSON-LD Structured Data (Hidden in <head> for Search Engines & AI)
+    is_yale = (brand == "YALE")
+    brand_display = "YALE (ASSA ABLOY Group - USA)" if is_yale else "ADEL (USA Standard - Since 1993)"
+    kw_brand = "khóa thông minh yale, khóa điện tử yale, yale assa abloy, đại lý khóa yale chính hãng tphcm hà nội" if is_yale else "khóa vân tay adel, khóa điện tử adel, livo deco, nhà phân phối khóa adel livo deco"
+
+    # JSON-LD Structured Data
     price_num = parse_price_number(p.get("price", "6500000"))
     schema_obj = {
         "@context": "https://schema.org",
@@ -105,7 +112,7 @@ def generate_product_html(p, all_prods):
                 "description": p["seoDescription"],
                 "brand": {
                     "@type": "Brand",
-                    "name": p.get("brand", "ADEL")
+                    "name": brand
                 },
                 "offers": {
                     "@type": "Offer",
@@ -117,7 +124,7 @@ def generate_product_html(p, all_prods):
                     "availability": "https://schema.org/InStock",
                     "seller": {
                         "@type": "Organization",
-                        "name": "Livo Deco - Nhà Phân Phối Chính Thức ADEL Việt Nam",
+                        "name": f"Livo Deco - Nhà Phân Phối Chính Thức {brand} Việt Nam",
                         "url": "https://livodeco.vn"
                     }
                 },
@@ -139,7 +146,7 @@ def generate_product_html(p, all_prods):
                     {
                         "@type": "ListItem",
                         "position": 2,
-                        "name": p.get("categoryName", "Khóa Điện Tử ADEL"),
+                        "name": p.get("categoryName", "Khóa Thông Minh"),
                         "item": "https://livodeco.vn/index.html#products-section"
                     },
                     {
@@ -156,7 +163,7 @@ def generate_product_html(p, all_prods):
             },
             {
                 "@type": "LocalBusiness",
-                "name": "Livo Deco - Nhà Phân Phối Khóa Điện Tử ADEL & Nội Thất Cao Cấp",
+                "name": "Livo Deco - Tổng Kho Phân Phối Khóa Điện Tử ADEL & YALE Chính Hãng",
                 "url": "https://livodeco.vn",
                 "telephone": "+84903354397",
                 "email": "kinhdoanh@livodeco.vn",
@@ -172,6 +179,14 @@ def generate_product_html(p, all_prods):
     }
     schema_json_str = json.dumps(schema_obj, ensure_ascii=False)
 
+    # Detailed Prose
+    if is_yale:
+        prose_tech_h3 = "2. Công nghệ bảo mật Liveness 3 trong 1 & Đẳng cấp an ninh ASSA ABLOY"
+        prose_tech_p = f"Mẫu {p['name']} được trang bị tiêu chuẩn bảo mật sinh trắc học hàng đầu thế giới của tập đoàn ASSA ABLOY với công nghệ quét vân tay Liveness 3 trong 1 (nhận diện SenseTM Pixel siêu nét, kiểm tra tế bào da sống Live Finger Detection và cảm ứng nhịp tim mao mạch Heart Rate), vô hiệu hóa 100% mọi hành vi làm giả vân tay."
+    else:
+        prose_tech_h3 = "2. Công nghệ bảo mật sinh trắc học & Độ bền vật liệu tiêu chuẩn Hoa Kỳ"
+        prose_tech_p = f"Toàn bộ phần thân và vỏ khóa {p['name']} được chế tác từ {material}, bề mặt xử lý chống trầy xước và chống oxy hóa, thích nghi hoàn hảo với điều kiện khí hậu nóng ẩm tại Việt Nam."
+
     return f"""<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -179,11 +194,18 @@ def generate_product_html(p, all_prods):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{p['seoTitle']}</title>
     <meta name="description" content="{p['seoDescription']}">
-    <meta name="keywords" content="{p['name']}, khóa vân tay adel, khóa điện tử adel, livo deco, nhà phân phối khóa adel livo deco, {p.get('categoryName', 'khóa thông minh')}">
+    <meta name="keywords" content="{p['name']}, {kw_brand}, {p.get('categoryName', 'khóa thông minh')}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://livodeco.vn/san-pham/{p['slug']}.html">
+    
+    <!-- GEO & Local SEO Meta Tags -->
+    <meta name="geo.region" content="VN-SG">
+    <meta name="geo.placename" content="Hồ Chí Minh, Việt Nam">
+    <meta name="geo.position" content="10.776889;106.700806">
+    <meta name="ICBM" content="10.776889, 106.700806">
+
     <meta property="og:type" content="product">
-    <meta property="og:site_name" content="Livo Deco - ADEL Official Vietnam">
+    <meta property="og:site_name" content="Livo Deco - Nhà Phân Phối ADEL & YALE Official">
     <meta property="og:title" content="{p['seoTitle']}">
     <meta property="og:description" content="{p['seoDescription']}">
     <meta property="og:url" content="https://livodeco.vn/san-pham/{p['slug']}.html">
@@ -204,32 +226,28 @@ def generate_product_html(p, all_prods):
         }}
         .seo-prose p {{
             margin-bottom: 0.85rem;
-            line-height: 1.8;
+            line-height: 1.75;
             color: #334155;
         }}
         .seo-prose ul {{
             list-style-type: disc;
-            padding-left: 1.5rem;
+            padding-left: 1.25rem;
             margin-bottom: 1.25rem;
             color: #334155;
         }}
         .seo-prose li {{
-            margin-bottom: 0.45rem;
-            line-height: 1.7;
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
         }}
         .onpage-link {{
-            color: #1d4ed8;
-            font-weight: 600;
+            color: #2563eb;
+            font-weight: 700;
             text-decoration: underline;
             text-underline-offset: 3px;
         }}
         .onpage-link:hover {{
-            color: #1e3a8a;
+            color: #1d4ed8;
         }}
-        details > summary::-webkit-details-marker {{
-            display: none;
-        }}
-        /* High-Gloss Metallic Light Sweep Glint */
         .light-sweep-container {{
             position: relative;
             overflow: hidden;
@@ -327,7 +345,7 @@ def generate_product_html(p, all_prods):
             <div class="flex items-center gap-3">
                 <span class="text-emerald-400 font-bold flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    Nhà Phân Phối Chính Thức ADEL Việt Nam - Livo Deco
+                    Nhà Phân Phối Chính Thức ADEL &amp; YALE Việt Nam - Livo Deco
                 </span>
                 <span class="hidden md:inline text-slate-600">|</span>
                 <span class="hidden md:inline"><i class="fa-solid fa-certificate text-amber-400 mr-1"></i> CO/CQ Chính Hãng 100%</span>
@@ -348,18 +366,21 @@ def generate_product_html(p, all_prods):
                 <div>
                     <div class="text-2xl font-black tracking-tight text-blue-950 flex items-center gap-1">
                         LIVO DECO
-                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">ADEL Official</span>
+                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">ADEL &amp; YALE Official</span>
                     </div>
-                    <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Smart Lock & Luxury Living</p>
+                    <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Smart Lock &amp; Luxury Living</p>
                 </div>
             </a>
 
             <div class="hidden md:flex items-center space-x-1 text-xs font-bold text-slate-700">
                 <a href="../index.html" class="px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition">Trang Chủ</a>
-                <a href="../index.html#products-section" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-600 transition">Khóa Điện Tử ADEL</a>
+                <a href="../index.html#products-section" class="px-3 py-2 rounded-lg {'bg-blue-50 text-blue-600' if not is_yale else 'hover:bg-blue-50 hover:text-blue-600'} transition">Khóa Điện Tử ADEL</a>
+                <a href="../index.html#products-section" class="px-3 py-2 rounded-lg {'bg-blue-50 text-blue-600' if is_yale else 'hover:bg-blue-50 hover:text-blue-600'} transition flex items-center gap-1">
+                    <i class="fa-solid fa-shield-halved text-amber-500"></i> Khóa Thông Minh YALE
+                </a>
                 <a href="../index.html#products-section" class="px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition">Thiết Bị Vệ Sinh</a>
                 <a href="../index.html#products-section" class="px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition">Nội Thất Cao Cấp</a>
-                <a href="../tin-tuc.html" class="px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition">Tin Tức & Cẩm Nang</a>
+                <a href="../tin-tuc.html" class="px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition">Tin Tức &amp; Cẩm Nang</a>
                 <a href="../chinh-sach-bao-hanh.html" class="px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition">Bảo Hành 24T</a>
             </div>
 
@@ -377,7 +398,7 @@ def generate_product_html(p, all_prods):
         <div class="max-w-7xl mx-auto px-4 flex items-center space-x-2 text-xs font-semibold text-slate-500">
             <a href="../index.html" class="hover:text-blue-600"><i class="fa-solid fa-house mr-1"></i> Trang chủ</a>
             <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-            <a href="../index.html#products-section" class="hover:text-blue-600">{p.get('categoryName', 'Khóa ADEL')}</a>
+            <a href="../index.html#products-section" class="hover:text-blue-600">{p.get('categoryName', 'Khóa Thông Minh')}</a>
             <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
             <span class="text-slate-900 font-bold truncate max-w-sm">{p['name']}</span>
         </div>
@@ -385,14 +406,14 @@ def generate_product_html(p, all_prods):
 
     <!-- Product Showcase -->
     <main class="max-w-7xl mx-auto px-4 py-10">
-        <!-- ROW 1: Original Product Photo (Left) + Buying Info & Key Features (Right) -->
+        <!-- ROW 1: Product Photo (Left) + Buying Info & Key Features (Right) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
             
             <!-- Top-Left: Clean Original Product Image Card -->
             <div class="lg:col-span-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full uppercase tracking-wider">
-                        {p.get('categoryName', 'Khóa Điện Tử ADEL')}
+                        {p.get('categoryName', f'Khóa Điện Tử {brand}')}
                     </span>
                     <span class="text-xs font-semibold text-slate-400">
                         Mã SP: <strong class="text-slate-700">{p['id'].upper()}</strong>
@@ -404,7 +425,7 @@ def generate_product_html(p, all_prods):
                 </div>
 
                 <div class="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
-                    <span><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Hàng chính hãng ADEL 100%</span>
+                    <span><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Hàng chính hãng {brand} 100%</span>
                     <span><i class="fa-solid fa-shield-halved text-blue-600 mr-1"></i> Đầy đủ chứng nhận CO/CQ</span>
                 </div>
             </div>
@@ -413,10 +434,12 @@ def generate_product_html(p, all_prods):
             <div class="lg:col-span-6 flex flex-col justify-between space-y-5">
                 <div>
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider mb-2">
-                        {p.get('badge', 'Chính Hãng ADEL')}
+                        {p.get('badge', f'Chính Hãng {brand}')}
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">{p['name']}</h1>
-                    <div class="mt-3 flex items-baseline gap-4">
+                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                        {p['name']}
+                    </h1>
+                    <div class="mt-3 flex items-baseline gap-3">
                         <span class="text-3xl font-black text-blue-700">{p['price']}</span>
                         <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
                             <i class="fa-solid fa-check"></i> Sẵn hàng tại tổng kho Livo Deco
@@ -438,7 +461,7 @@ def generate_product_html(p, all_prods):
                 <div class="space-y-3 pt-1">
                     <div class="grid grid-cols-2 gap-3">
                         <a href="tel:0903354397" class="py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 text-center">
-                            <i class="fa-solid fa-phone"></i> Gọi Khảo Sát & Lắp Ngay
+                            <i class="fa-solid fa-phone"></i> Gọi Khảo Sát &amp; Lắp Ngay
                         </a>
                         <a href="https://zalo.me/0903354397" target="_blank" class="py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition flex items-center justify-center gap-2 text-center">
                             <i class="fa-solid fa-comment-dots text-blue-400"></i> Chat Zalo Nhận Báo Giá
@@ -485,24 +508,23 @@ def generate_product_html(p, all_prods):
             </h2>
             
             <div class="seo-prose text-sm">
-                <h3>1. Thiết kế tổng quan và xuất xứ chính hãng ADEL</h3>
+                <h3>1. Thiết kế tổng quan và xuất xứ thương hiệu {brand_display}</h3>
                 <p>
-                    <strong>{p['name']}</strong> là mẫu khóa thông minh thuộc dòng <a href="../index.html#products-section" class="onpage-link">{p.get('categoryName', 'Khóa Điện Tử ADEL')}</a> của tập đoàn công nghệ <strong>ADEL</strong> (thương hiệu khóa vân tay tiên phong theo tiêu chuẩn Hoa Kỳ từ năm 1993), hiện được phân phối chính thức tại Việt Nam bởi <strong><a href="../index.html" class="onpage-link">Livo Deco</a></strong> với mức giá niêm yết <strong>{p['price']}</strong>.
+                    <strong>{p['name']}</strong> là mẫu khóa thông minh thuộc phân khúc <a href="../index.html#products-section" class="onpage-link">{p.get('categoryName', 'Khóa Thông Minh')}</a> của tập đoàn công nghệ danh tiếng <strong>{brand_display}</strong>, hiện được phân phối chính ngạch tại Việt Nam bởi <strong><a href="../index.html" class="onpage-link">Livo Deco</a></strong> với mức giá niêm yết <strong>{p['price']}</strong>.
                 </p>
                 <p>
-                    Sở hữu ngoại quan tinh tế với tông màu <strong>{color}</strong> sang trọng, sản phẩm đáp ứng đồng thời yêu cầu khắt khe về thẩm mỹ kiến trúc nội thất và tiêu chuẩn an ninh cao cấp cho căn hộ chung cư, biệt thự, nhà phố cũng như văn phòng hiện đại.
+                    Sở hữu ngoại quan tinh tế với tông màu <strong>{color}</strong> sang trọng, sản phẩm đáp ứng hoàn hảo yêu cầu khắt khe về thẩm mỹ kiến trúc nội thất và tiêu chuẩn an ninh cao cấp cho căn hộ chung cư, biệt thự, nhà phố cũng như văn phòng hiện đại.
                 </p>
 
-                <h3>2. Công nghệ bảo mật sinh trắc học &amp; Độ bền vật liệu</h3>
+                <h3>{prose_tech_h3}</h3>
                 <p>
-                    Toàn bộ phần thân và vỏ khóa <strong>{p['name']}</strong> được chế tác từ <strong>{material}</strong>, bề mặt xử lý chống trầy xước và chống oxy hóa, thích nghi hoàn hảo với điều kiện khí hậu nóng ẩm tại Việt Nam.
+                    {prose_tech_p}
                 </p>
                 <ul>
                     <li><strong>Phương thức mở khóa linh hoạt:</strong> Tích hợp {unlock_methods}, giúp người dùng thao tác mở cửa nhanh chóng và tiện lợi.</li>
-                    <li><strong>Nhận diện vân tay siêu nhạy:</strong> Đầu đọc vân tay sinh trắc học cho tốc độ phản hồi dưới 0.5 giây, ngăn chặn hoàn toàn vân tay giả mạo bằng silicon hay hình ảnh.</li>
                     <li><strong>Dung lượng bộ nhớ lớn:</strong> Hỗ trợ lưu trữ {capacity}, dễ dàng đăng ký hoặc xóa từng người dùng trực tiếp trên khóa.</li>
-                    <li><strong>An toàn chủ động:</strong> Tích hợp mã số ảo chống nhìn trộm, tự động khóa bàn phím khi nhập sai mật khẩu 5 lần liên tiếp và phát âm thanh cảnh báo khi có ngoại lực cạy phá.</li>
-                    <li><strong>Nguồn điện bền bỉ:</strong> Vận hành bằng {power_supply}, có cảnh báo pin yếu sớm trước 2–3 tuần và trang bị cổng cấp nguồn dự phòng khẩn cấp bên ngoài.</li>
+                    <li><strong>An toàn chủ động:</strong> Tích hợp mã số ảo chống nhìn trộm, tự động khóa bàn phím khi nhập sai mật khẩu và phát còi hú âm thanh cảnh báo 80dB khi có ngoại lực cạy phá.</li>
+                    <li><strong>Vận hành bền bỉ:</strong> Sử dụng {power_supply}, có cảnh báo pin yếu sớm trước 2–3 tuần và trang bị cổng cấp nguồn dự phòng khẩn cấp bên ngoài.</li>
                 </ul>
 
                 <h3>3. Tiêu chuẩn đố cửa &amp; Khảo sát lắp đặt thực tế</h3>
@@ -532,8 +554,8 @@ def generate_product_html(p, all_prods):
         <!-- Related Products Section -->
         <div class="mt-16">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-black text-slate-900">Sản Phẩm Cùng Phân Khúc Tại Livo Deco</h2>
-                <a href="../index.html#products-section" class="text-xs font-bold text-blue-600 hover:underline">Xem tất cả 81+ mẫu &rarr;</a>
+                <h2 class="text-lg font-black text-slate-900">Sản Phẩm Cùng Thương Hiệu &amp; Phân Khúc Tại Livo Deco</h2>
+                <a href="../index.html#products-section" class="text-xs font-bold text-blue-600 hover:underline">Xem tất cả 103+ mẫu &rarr;</a>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {related_cards}
@@ -545,7 +567,7 @@ def generate_product_html(p, all_prods):
     <footer class="bg-slate-950 text-slate-400 text-xs border-t border-slate-800 py-10 mt-16">
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
-                <p class="font-bold text-white text-sm">LIVO DECO - NHÀ PHÂN PHỐI CHÍNH THỨC KHÓA ADEL &amp; NỘI THẤT CAO CẤP</p>
+                <p class="font-bold text-white text-sm">LIVO DECO - NHÀ PHÂN PHỐI CHÍNH THỨC KHÓA ADEL, YALE &amp; NỘI THẤT CAO CẤP</p>
                 <p class="text-slate-500 mt-1">Hotline: 0903 354 397 | Email: kinhdoanh@livodeco.vn | Website: https://livodeco.vn</p>
             </div>
             <p>© 2026 Livo Deco Official. All rights reserved.</p>
@@ -606,7 +628,12 @@ def generate_product_html(p, all_prods):
 
 os.makedirs("san-pham", exist_ok=True)
 
-all_prods = data.get("adel_products", []) + data.get("sanitary_products", []) + data.get("furniture_products", [])
+all_prods = (
+    data.get("adel_products", []) + 
+    data.get("yale_products", []) + 
+    data.get("sanitary_products", []) + 
+    data.get("furniture_products", [])
+)
 
 created_count = 0
 for p in all_prods:
@@ -616,4 +643,36 @@ for p in all_prods:
         f.write(html_content)
     created_count += 1
 
-print(f"Generated {created_count} clean, natural product pages in 'san-pham/'!")
+print(f"Generated {created_count} clean, natural product pages in 'san-pham/' (including {len(data.get('yale_products', []))} Yale products)!")
+
+# Generate complete sitemap.xml
+sitemap_urls = [
+    ("https://livodeco.vn/", "daily", "1.0"),
+    ("https://livodeco.vn/index.html", "daily", "1.0"),
+    ("https://livodeco.vn/tin-tuc.html", "weekly", "0.8"),
+    ("https://livodeco.vn/chinh-sach-bao-hanh.html", "monthly", "0.7"),
+    ("https://livodeco.vn/chinh-sach-lap-dat.html", "monthly", "0.7"),
+    ("https://livodeco.vn/chinh-sach-thanh-toan.html", "monthly", "0.7")
+]
+
+for n in data.get("news", []):
+    sitemap_urls.append((f"https://livodeco.vn/tin-tuc/{n['slug']}.html", "monthly", "0.8"))
+
+for p in all_prods:
+    priority = "0.9" if p.get("brand") in ["ADEL", "YALE"] else "0.8"
+    sitemap_urls.append((f"https://livodeco.vn/san-pham/{p['slug']}.html", "weekly", priority))
+
+sitemap_xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+for url, freq, prio in sitemap_urls:
+    sitemap_xml.append(f"""  <url>
+    <loc>{url}</loc>
+    <changefreq>{freq}</changefreq>
+    <priority>{prio}</priority>
+  </url>""")
+sitemap_xml.append('</urlset>')
+
+with open("sitemap.xml", "w", encoding="utf-8") as f:
+    f.write("\n".join(sitemap_xml) + "\n")
+
+print(f"Updated sitemap.xml with {len(sitemap_urls)} URLs (all ADEL, YALE, and catalogue pages).")
+
